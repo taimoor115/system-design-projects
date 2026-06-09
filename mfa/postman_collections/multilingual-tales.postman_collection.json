@@ -1,0 +1,89 @@
+{
+  "info": {
+    "_postman_id": "multilingual-tales-ai-pipeline",
+    "name": "Multilingual Tales - AI Pipeline (Requestly/Postman)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection to test character creation and book generation (image → audio → video). Base URL uses {{baseUrl}} (default http://localhost:9000)."
+  },
+  "item": [
+    {
+      "name": "Create Character",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"76757550-2614-4ff8-ba69-10bda1d98f94\",\n  \"child_name\": \"Test Child\",\n  \"gender\": \"male\",\n  \"age_range\": \"1_to_5\",\n  \"language\": \"en\",\n  \"relationship\": \"parent\",\n  \"narrator_voice_language\": \"en\",\n  \"narrator_gender\": \"female\",\n  \"child_dialogue_voice\": \"male\",\n  \"photo_1_url\": \"http://localhost:9000/public/character/child.webp\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/characters",
+          "host": ["{{baseUrl}}"],
+          "path": ["characters"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Book Generation Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n  \"user_id\": \"76757550-2614-4ff8-ba69-10bda1d98f94\",\n  \"character_id\": \"<PASTE_CHARACTER_ID_HERE>\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/books/9aa1d038-4903-4131-8865-c11aea9668ca/generate",
+          "host": ["{{baseUrl}}"],
+          "path": ["books","9aa1d038-4903-4131-8865-c11aea9668ca","generate"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Job Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/jobs/{{jobId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["jobs","{{jobId}}","status"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Download Job Result",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/jobs/{{jobId}}/download",
+          "host": ["{{baseUrl}}"],
+          "path": ["jobs","{{jobId}}","download"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Ensure baseUrl default",
+          "if (!pm.environment.get('baseUrl')) { pm.environment.set('baseUrl', 'http://localhost:9000'); }"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:9000" },
+    { "key": "jobId", "value": "" }
+  ]
+}

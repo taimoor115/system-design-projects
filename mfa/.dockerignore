@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+
+# Dependencies (rebuilt inside Docker)
+node_modules
+**/node_modules
+
+# Build outputs (rebuilt inside Docker)
+dist
+**/dist
+.next
+**/.next
+.turbo
+**/.turbo
+
+# Development / local config
+.env
+.env.*
+!.env.example
+*.local
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Test artifacts
+coverage
+**/coverage
+
+# Docker files themselves
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Monitoring / tooling dirs that don't belong in the image
+monitoring

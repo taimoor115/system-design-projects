@@ -1,0 +1,862 @@
+{
+    "annotations":  {
+                        "list":  [
+
+                                 ]
+                    },
+    "editable":  true,
+    "graphTooltip":  1,
+    "id":  null,
+    "links":  [
+
+              ],
+    "panels":  [
+                   {
+                       "id":  1,
+                       "title":  "Error Count Over Time",
+                       "type":  "timeseries",
+                       "gridPos":  {
+                                       "h":  6,
+                                       "w":  8,
+                                       "x":  0,
+                                       "y":  0
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "color":  {
+                                                                          "fixedColor":  "red",
+                                                                          "mode":  "fixed"
+                                                                      },
+                                                            "custom":  {
+                                                                           "lineWidth":  2,
+                                                                           "fillOpacity":  20
+                                                                       }
+                                                        }
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "sum(count_over_time({service=\"multilingual-tales-api\", level=\"error\"}[$__interval]))",
+                                           "legendFormat":  "errors",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  2,
+                       "title":  "Log Rate by Level",
+                       "type":  "timeseries",
+                       "gridPos":  {
+                                       "h":  6,
+                                       "w":  8,
+                                       "x":  8,
+                                       "y":  0
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "custom":  {
+                                                                           "lineWidth":  2,
+                                                                           "fillOpacity":  10
+                                                                       }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "error"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "color",
+                                                                                        "value":  {
+                                                                                                      "fixedColor":  "red",
+                                                                                                      "mode":  "fixed"
+                                                                                                  }
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "warn"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "color",
+                                                                                        "value":  {
+                                                                                                      "fixedColor":  "orange",
+                                                                                                      "mode":  "fixed"
+                                                                                                  }
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "info"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "color",
+                                                                                        "value":  {
+                                                                                                      "fixedColor":  "blue",
+                                                                                                      "mode":  "fixed"
+                                                                                                  }
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "debug"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "color",
+                                                                                        "value":  {
+                                                                                                      "fixedColor":  "gray",
+                                                                                                      "mode":  "fixed"
+                                                                                                  }
+                                                                                    }
+                                                                                ]
+                                                             }
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "sum by (level) (count_over_time({service=\"multilingual-tales-api\"}[$__interval]))",
+                                           "legendFormat":  "{{level}}",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  9,
+                       "title":  "Total Log Volume",
+                       "type":  "stat",
+                       "gridPos":  {
+                                       "h":  6,
+                                       "w":  8,
+                                       "x":  16,
+                                       "y":  0
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "thresholds":  {
+                                                                               "mode":  "absolute",
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "color":  "green",
+                                                                                                 "value":  null
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "orange",
+                                                                                                 "value":  500
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "red",
+                                                                                                 "value":  1000
+                                                                                             }
+                                                                                         ]
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "options":  {
+                                       "reduceOptions":  {
+                                                             "calcs":  [
+                                                                           "sum"
+                                                                       ]
+                                                         },
+                                       "orientation":  "auto",
+                                       "textMode":  "auto",
+                                       "colorMode":  "background",
+                                       "graphMode":  "area"
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "count_over_time({service=\"multilingual-tales-api\", level=\"error\"}[$__range])",
+                                           "legendFormat":  "Errors",
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "count_over_time({service=\"multilingual-tales-api\", level=\"warn\"}[$__range])",
+                                           "legendFormat":  "Warnings",
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  3,
+                       "title":  "All Application Logs",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  14,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  6
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  true,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | level=~\"$level\" | context=~\"$context\"",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  4,
+                       "title":  "Error Logs",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  12,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  20
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  true,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\", level=\"error\"} | json",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  5,
+                       "title":  "Job Pipeline Logs (IMAGE / AUDIO / VIDEO)",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  12,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  32
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | message=~\"\\\\[(IMAGE|AUDIO|VIDEO):.+\\\\]\"",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  6,
+                       "title":  "Job Success Log Table",
+                       "description":  "Completed job events from all processors",
+                       "type":  "table",
+                       "gridPos":  {
+                                       "h":  12,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  44
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "align":  "left",
+                                                                           "displayMode":  "auto"
+                                                                       }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "Time"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "custom.width",
+                                                                                        "value":  180
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "message"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "displayName",
+                                                                                        "value":  "Message"
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "context"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "displayName",
+                                                                                        "value":  "Processor"
+                                                                                    },
+                                                                                    {
+                                                                                        "id":  "custom.width",
+                                                                                        "value":  130
+                                                                                    }
+                                                                                ]
+                                                             }
+                                                         ]
+                                       },
+                       "options":  {
+                                       "sortBy":  [
+                                                      {
+                                                          "desc":  true,
+                                                          "displayName":  "Time"
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | message=~\".*(Done in|complete|COMPLETED|Job started).*\" | line_format \"{{.message}}\"",
+                                           "refId":  "A",
+                                           "instant":  false,
+                                           "range":  true
+                                       }
+                                   ],
+                       "transformations":  [
+                                               {
+                                                   "id":  "extractFields",
+                                                   "options":  {
+                                                                   "source":  "labels",
+                                                                   "format":  "kvp",
+                                                                   "replace":  false
+                                                               }
+                                               },
+                                               {
+                                                   "id":  "organize",
+                                                   "options":  {
+                                                                   "excludeByName":  {
+                                                                                         "id":  true,
+                                                                                         "tsNs":  true,
+                                                                                         "traceId":  true,
+                                                                                         "userId":  true
+                                                                                     },
+                                                                   "renameByName":  {
+                                                                                        "Time":  "Time",
+                                                                                        "message":  "Message",
+                                                                                        "context":  "Processor"
+                                                                                    }
+                                                               }
+                                               }
+                                           ]
+                   },
+                   {
+                       "id":  7,
+                       "title":  "Job Failure Log Table",
+                       "description":  "Failed job events from all processors",
+                       "type":  "table",
+                       "gridPos":  {
+                                       "h":  12,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  44
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "align":  "left",
+                                                                           "displayMode":  "auto"
+                                                                       },
+                                                            "color":  {
+                                                                          "mode":  "fixed",
+                                                                          "fixedColor":  "red"
+                                                                      }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "Time"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "custom.width",
+                                                                                        "value":  180
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "message"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "displayName",
+                                                                                        "value":  "Error Message"
+                                                                                    }
+                                                                                ]
+                                                             },
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "context"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "displayName",
+                                                                                        "value":  "Processor"
+                                                                                    },
+                                                                                    {
+                                                                                        "id":  "custom.width",
+                                                                                        "value":  130
+                                                                                    }
+                                                                                ]
+                                                             }
+                                                         ]
+                                       },
+                       "options":  {
+                                       "sortBy":  [
+                                                      {
+                                                          "desc":  true,
+                                                          "displayName":  "Time"
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\", level=\"error\"} | json | message=~\".*(Job failed|FAILED|failed after).*\" | line_format \"{{.message}}\"",
+                                           "refId":  "A",
+                                           "instant":  false,
+                                           "range":  true
+                                       }
+                                   ],
+                       "transformations":  [
+                                               {
+                                                   "id":  "extractFields",
+                                                   "options":  {
+                                                                   "source":  "labels",
+                                                                   "format":  "kvp",
+                                                                   "replace":  false
+                                                               }
+                                               },
+                                               {
+                                                   "id":  "organize",
+                                                   "options":  {
+                                                                   "excludeByName":  {
+                                                                                         "id":  true,
+                                                                                         "tsNs":  true,
+                                                                                         "traceId":  true,
+                                                                                         "userId":  true
+                                                                                     },
+                                                                   "renameByName":  {
+                                                                                        "Time":  "Time",
+                                                                                        "message":  "Error Message",
+                                                                                        "context":  "Processor"
+                                                                                    }
+                                                               }
+                                               }
+                                           ]
+                   },
+                   {
+                       "id":  8,
+                       "title":  "Auth \u0026 Payment Logs",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  56
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | context=~\"(Auth|Payment|Stripe|Google).*\"",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  10,
+                       "title":  "API Success Responses Table",
+                       "description":  "HTTP request logs with 2xx/3xx statuses",
+                       "type":  "table",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  66
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "sortBy":  [
+                                                      {
+                                                          "desc":  true,
+                                                          "displayName":  "Time"
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | context=\"RequestLogService\" | message=~\".*\\\"event\\\":\\\"http_request\\\".*\" | line_format \"{{.message}}\" | json | status=~\"2..|3..\"",
+                                           "refId":  "A",
+                                           "instant":  false,
+                                           "range":  true
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  11,
+                       "title":  "API Error Responses Table",
+                       "description":  "HTTP request logs with 4xx/5xx statuses",
+                       "type":  "table",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  66
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "sortBy":  [
+                                                      {
+                                                          "desc":  true,
+                                                          "displayName":  "Time"
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | context=\"RequestLogService\" | message=~\".*\\\"event\\\":\\\"http_request\\\".*\" | line_format \"{{.message}}\" | json | status=~\"4..|5..\"",
+                                           "refId":  "A",
+                                           "instant":  false,
+                                           "range":  true
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  12,
+                       "title":  "DB Query P95 Latency (ms)",
+                       "type":  "timeseries",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  76
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "targets":  [
+                                       {
+                                           "expr":  "histogram_quantile(0.95, sum(rate(db_query_duration_ms_bucket[5m])) by (le, status))",
+                                           "legendFormat":  "p95 {{status}}",
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "expr":  "sum(rate(db_queries_total[5m])) by (status)",
+                                           "legendFormat":  "qps {{status}}",
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  13,
+                       "title":  "DB Query Logs",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  76
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  true,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | context=\"Database\" | message=~\".*\\\"event\\\":\\\"db_query\\\".*\"",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  14,
+                       "title":  "Jobs Service Logs",
+                       "type":  "logs",
+                       "gridPos":  {
+                                       "h":  10,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  86
+                                   },
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "loki"
+                                      },
+                       "options":  {
+                                       "dedupStrategy":  "none",
+                                       "enableLogDetails":  true,
+                                       "prettifyLogMessage":  true,
+                                       "showLabels":  true,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "loki"
+                                                          },
+                                           "expr":  "{service=\"multilingual-tales-api\"} | json | context=\"JobsService\"",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   }
+               ],
+    "refresh":  "30s",
+    "schemaVersion":  38,
+    "tags":  [
+                 "logs",
+                 "loki",
+                 "application"
+             ],
+    "templating":  {
+                       "list":  [
+                                    {
+                                        "current":  {
+                                                        "selected":  true,
+                                                        "text":  ".*",
+                                                        "value":  ".*"
+                                                    },
+                                        "hide":  0,
+                                        "includeAll":  false,
+                                        "label":  "Level",
+                                        "multi":  false,
+                                        "name":  "level",
+                                        "options":  [
+                                                        {
+                                                            "selected":  true,
+                                                            "text":  "all",
+                                                            "value":  ".*"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "error",
+                                                            "value":  "error"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "warn",
+                                                            "value":  "warn"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "info",
+                                                            "value":  "info"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "debug",
+                                                            "value":  "debug"
+                                                        }
+                                                    ],
+                                        "query":  ".*,error,warn,info,debug",
+                                        "type":  "custom"
+                                    },
+                                    {
+                                        "current":  {
+                                                        "selected":  true,
+                                                        "text":  ".*",
+                                                        "value":  ".*"
+                                                    },
+                                        "hide":  0,
+                                        "includeAll":  false,
+                                        "label":  "Context",
+                                        "multi":  false,
+                                        "name":  "context",
+                                        "options":  [
+                                                        {
+                                                            "selected":  true,
+                                                            "text":  "all",
+                                                            "value":  ".*"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "ImageProcessor",
+                                                            "value":  "ImageProcessor"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "AudioProcessor",
+                                                            "value":  "AudioProcessor"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "VideoProcessor",
+                                                            "value":  "VideoProcessor"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "CharactersService",
+                                                            "value":  "CharactersService"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "text":  "BooksService",
+                                                            "value":  "BooksService"
+                                                        }
+                                                    ],
+                                        "query":  ".*,ImageProcessor,AudioProcessor,VideoProcessor,CharactersService,BooksService",
+                                        "type":  "custom"
+                                    }
+                                ]
+                   },
+    "time":  {
+                 "from":  "now-3h",
+                 "to":  "now"
+             },
+    "timepicker":  {
+
+                   },
+    "timezone":  "browser",
+    "title":  "Application Logs",
+    "uid":  "app-logs",
+    "version":  3
+}

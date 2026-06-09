@@ -1,0 +1,69 @@
+services:
+  postgres_server:
+    image: postgres:16
+    container_name: multilingual_tales_postgres_stage
+    restart: always
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: story-book
+    volumes:
+      - postgres_data_stage:/var/lib/postgresql/data
+    networks:
+      - multilingual_tales_stage
+
+  redis_server:
+    image: redis:7
+    container_name: multilingual_tales_redis_stage
+    restart: always
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - 512mb
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - redis_data_stage:/data
+    networks:
+      - multilingual_tales_stage
+
+  api:
+    image: ${DOCKERHUB_USERNAME}/multilingual-tales-api:stage
+    container_name: multilingual_tales_api_stage
+    restart: always
+    env_file:
+      - /var/www/Multilingual-Tales-Envs/env.api
+    depends_on:
+      - postgres_server
+      - redis_server
+    ports:
+      - "127.0.0.1:3001:9000"
+    networks:
+      - multilingual_tales_stage
+
+  web:
+    image: ${DOCKERHUB_USERNAME}/multilingual-tales-web:stage
+    container_name: multilingual_tales_web_stage
+    restart: always
+    env_file:
+      - /var/www/Multilingual-Tales-Envs/env.web
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - multilingual_tales_stage
+
+networks:
+  multilingual_tales_stage:
+    driver: bridge
+
+volumes:
+  postgres_data_stage:
+  redis_data_stage:

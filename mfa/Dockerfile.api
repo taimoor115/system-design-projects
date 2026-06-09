@@ -1,0 +1,17 @@
+FROM node:22-alpine
+
+RUN apk add --no-cache libc6-compat python3 make g++ fontconfig ttf-dejavu ttf-liberation && fc-cache -fv
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+COPY . .
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm build
+
+ENV NODE_ENV=production
+EXPOSE 3001
+
+CMD ["node", "apps/api/dist/src/main.js"]

@@ -1,0 +1,2 @@
+GET http://localhost:7272/api/v1/search?query=What is Pakistan current interest rate?
+Accept: text/event-stream

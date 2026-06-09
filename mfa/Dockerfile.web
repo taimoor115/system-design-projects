@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:22-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+FROM base AS pruner
+WORKDIR /app
+COPY . .
+RUN pnpm dlx turbo prune web --docker
+
+FROM base AS installer
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile
+
+FROM installer AS builder
+WORKDIR /app
+COPY --from=pruner /app/out/full/ .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Required if frontend needs API URL at build time
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Prevent COPY failure if public folder is missing
+RUN mkdir -p apps/web/public
+
+RUN pnpm turbo run build --filter=web
+
+FROM node:22-alpine AS runner
+RUN apk add --no-cache libc6-compat
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser --system --uid 1001 nextjs
+
+WORKDIR /app
+
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "apps/web/server.js"]

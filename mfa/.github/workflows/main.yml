@@ -1,0 +1,48 @@
+name: Deploy Multilingual Tales (Sandbox)
+
+on:
+  push:
+    branches:
+      - sandbox
+
+jobs:
+  deploy:
+    name: Deploy to VPS Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Execute deployment commands on VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script: |
+            bash /var/www/.deploy-stage.sh
+  notify-status:
+    name: Notify Deployment Completed
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+  
+    steps:
+      - name: Send Slack notification
+        env:
+          STATUS: ${{ needs.deploy.result }}
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+          WEBHOOK: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+        run: |
+          ICON="✅"
+          if [ "$STATUS" != "success" ]; then
+            ICON="❌"
+          fi
+  
+          MESSAGE="┌─────────────────────────────┐\n$ICON * Multilingual Tales Stage Deployment Completed*\n└─────────────────────────────┘\n\n• *Repository:* <https://github.com/$REPO|Multilingual Tales (Sandbox) on VPS >\n• *Branch:* \`master\`\n• *Status:* *$STATUS*\n• *Triggered by:* $ACTOR"
+  
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"$MESSAGE\"}" \
+          "$WEBHOOK"
