@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
-import * as crypto from 'crypto';
-import * as bcrypt from 'bcrypt';
 import { EncryptionService } from '../common/encryption/encryption.service';
 import { PrismaService } from '../common/prisma/prisma.service';
 
@@ -36,7 +36,9 @@ export class MfaService {
     userId: string,
     code: string,
   ): Promise<{ recoveryCodes: string[] }> {
-    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
 
     if (!user.pendingTwoFactorSecret) {
       throw new BadRequestException('MFA setup not initiated');
@@ -63,7 +65,9 @@ export class MfaService {
   }
 
   async validateCode(userId: string, code: string): Promise<boolean> {
-    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
 
     if (!user.twoFactorSecret) {
       throw new BadRequestException('MFA not configured for this user');

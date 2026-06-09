@@ -42,9 +42,7 @@ export class MfaController {
 
   @Post('disable')
   @HttpCode(HttpStatus.OK)
-  async disable(
-    @Request() req: RequestWithUser,
-  ): Promise<{ message: string }> {
+  async disable(@Request() req: RequestWithUser): Promise<{ message: string }> {
     await this.mfaService.disableMfa(req.user.userId);
     return { message: 'MFA disabled successfully' };
   }
