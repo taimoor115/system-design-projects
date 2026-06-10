@@ -1,135 +1,181 @@
-# Turborepo starter
+# MFA Demo — Two-Factor Authentication
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-stack demo application implementing secure Two-Factor Authentication (2FA) using Time-based One-Time Passwords (TOTP) with QR codes, authenticator apps, and recovery codes.
 
-## Using this example
+## Tech Stack
 
-Run the following command:
+| Layer | Technology |
+| --- | --- |
+| Backend | NestJS 11, Prisma 5, MongoDB |
+| Auth | Passport.js, JWT (dual-token strategy) |
+| 2FA | otplib (TOTP), qrcode |
+| Encryption | AES-256-GCM |
+| Frontend | Next.js 15, React 19, Tailwind CSS |
+| HTTP Client | Axios |
+| Validation | Zod + nestjs-zod |
+| Monorepo | pnpm workspaces + Turborepo |
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+mfa/
+├── apps/
+│   ├── api/          # NestJS backend (port 7272)
+│   └── web/          # Next.js frontend (port 3000)
+├── packages/
+│   ├── schemas/      # Shared Zod schemas
+│   ├── eslint-config/
+│   └── typescript-config/
+└── docker-compose.yaml
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Prerequisites
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+- Node.js >= 18
+- pnpm 9+
+- Docker (for MongoDB)
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## Getting Started
 
-### Develop
+### 1. Install Dependencies
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+pnpm install
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 2. Start MongoDB with Replica Set
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Prisma requires MongoDB to run as a replica set.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+```bash
+# Start container
+docker run -d --name mongodb_mfa \
+  -p 27017:27017 \
+  -v mongodb_mfa_data:/data/db \
+  mongo:7 mongod --replSet rs0 --bind_ip_all
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+# Wait a few seconds, then initiate the replica set
+docker exec mongodb_mfa mongosh --eval \
+  "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### 3. Configure Environment Variables
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+**API** — create `apps/api/.env`:
+
+```env
+DATABASE_URL="mongodb://localhost:27017/mfa-demo"
+JWT_SECRET="your-jwt-secret-min-32-chars"
+JWT_MFA_PENDING_SECRET="different-secret-min-32-chars"
+ENCRYPTION_KEY="64-character-hex-string"
+APP_NAME="MFADemo"
+PORT=7272
+SWAGGER_PASSWORD=admin
+```
+
+Generate a valid `ENCRYPTION_KEY`:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Web** — create `apps/web/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:7272"
+```
+
+### 4. Run the App
+
+```bash
+# Run both API and web together
+pnpm dev
+
+# Or run individually
+pnpm --filter api dev
+pnpm --filter web dev
+```
+
+- Frontend: <http://localhost:3000>
+- API: <http://localhost:7272>
+- Swagger Docs: <http://localhost:7272/api-docs> (user: `admin`, password from `.env`)
+
+## API Endpoints
+
+Base path: `/api/v1`
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| POST | `/auth/register` | — | Register new user |
+| POST | `/auth/login` | — | Login — returns `accessToken` or `mfaToken` |
+| GET | `/auth/me` | JWT | Get current user |
+| POST | `/auth/mfa/validate` | MFA-pending JWT | Submit TOTP code, receive full access token |
+
+### MFA Management
+
+| Method | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| POST | `/mfa/setup` | JWT | Generate TOTP secret + QR code |
+| POST | `/mfa/confirm` | JWT | Confirm setup with first code, get recovery codes |
+| POST | `/mfa/disable` | JWT | Disable 2FA |
+
+### Infrastructure
+
+| Endpoint | Description |
+| --- | --- |
+| `/api-docs` | Swagger UI (basic auth) |
+| `/health/live` | Liveness probe |
+| `/health/ready` | Readiness probe |
+| `/metrics` | Prometheus metrics |
+
+## How 2FA Works
 
 ```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+Setup flow:
+  POST /mfa/setup    → returns QR code + base32 secret
+  User scans QR in authenticator app
+  POST /mfa/confirm  → validates first code → activates 2FA + returns recovery codes
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+Login flow:
+  POST /auth/login          → password OK + 2FA enabled → returns short-lived mfaToken (3 min)
+  POST /auth/mfa/validate   → TOTP code OK → returns full accessToken (7 days)
 ```
 
-## Useful Links
+Recovery codes (8 codes) are generated on setup, hashed with bcrypt, and each can only be used once.
 
-Learn more about the power of Turborepo:
+## Database Schema
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+```
+User
+  id                     ObjectId
+  email                  String (unique)
+  password               String (bcrypt)
+  twoFactorEnabled       Boolean
+  twoFactorSecret        String? (AES-256-GCM encrypted)
+  pendingTwoFactorSecret String? (cleared after confirm)
+  lastUsedTotpStep       Int? (replay attack prevention)
+
+RecoveryCode
+  id        ObjectId
+  userId    ObjectId → User
+  codeHash  String (bcrypt)
+  isUsed    Boolean
+```
+
+## Useful Commands
+
+```bash
+# Database
+pnpm --filter api studio        # Open Prisma Studio
+pnpm --filter api migrate:dev   # Run migrations
+
+# Build
+pnpm build                      # Build all
+pnpm check-types                # Type check all
+
+# Lint & Format
+pnpm lint
+pnpm format
+```
